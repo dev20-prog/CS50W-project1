@@ -20,7 +20,7 @@ def entry(request, title):
             for i in entries:
                 if query.lower() in i.lower():
                     results.append(i)
-            return render(request, "encyclopedia/entry.html", {
+            return render(request, "encyclopedia/search.html", {
                 "title": "Search Results",
                 "entry": results
             })
