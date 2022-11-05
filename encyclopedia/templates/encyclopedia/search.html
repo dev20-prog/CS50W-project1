@@ -6,8 +6,8 @@
 
 {% block body %}
     <h2>Search Results</h2>
-    {% if entry %}
-        {% for result in entry %}
+    {% if results %}
+        {% for result in results %}
             <ul>
                 <li><a href="{% url 'entry' result %}">{{ result }}</a></li>
             </ul>
