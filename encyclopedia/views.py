@@ -36,15 +36,10 @@ def search(request):
         for i in entries:
             if query.lower() in i.lower():
                 results.append(i)
-                return render(request, "encyclopedia/search.html", {
-                    "title": "Search Results",
-                    "results": results
-                })
-        if len(results) == 0:
-            return render(request, "encyclopedia/search.html", {
-                "title": "Search Results",
-                "error": "No matching results."
-            })
+        return render(request, "encyclopedia/search.html", {
+            "title": "Search Results",
+            "results": results
+        })
     return redirect('entry', title=query)
 
 
