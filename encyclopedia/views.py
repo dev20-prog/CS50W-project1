@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django import forms
@@ -36,15 +36,16 @@ def search(request):
         for i in entries:
             if query.lower() in i.lower():
                 results.append(i)
-        return render(request, "encyclopedia/search.html", {
-            "title": "Search Results",
-            "results": results
-        })
-
-    return render(request, "encyclopedia/entry.html", {
-        "title": query.capitalize(),
-        "entry": entry
-    })
+                return render(request, "encyclopedia/search.html", {
+                    "title": "Search Results",
+                    "results": results
+                })
+        if len(results) == 0:
+            return render(request, "encyclopedia/search.html", {
+                "title": "Search Results",
+                "error": "No matching results."
+            })
+    return redirect('entry', title=query)
 
 
 class NewEntry(forms.Form):

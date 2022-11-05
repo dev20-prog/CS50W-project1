@@ -5,7 +5,7 @@
 {% endblock %} 
 
 {% block body %}
-    <h2>Create a new Wiki Page</h2>
+    <h3>Create a new Wiki Page</h3>
     <p style="color:red">{{ message }}</p>
     <form action="{% url 'newpage' %}" method="post">
         {% csrf_token %}
