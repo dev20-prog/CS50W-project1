@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 from django import forms
 from django.core.files.storage import default_storage
 from . import util
+import random
+import markdown2
 
 
 def index(request):
@@ -14,14 +16,14 @@ def index(request):
 
 def entry(request, title):
 
-    entry = util.get_entry(title)
+    entry = markdown2.markdown(util.get_entry(title))
     if entry == None:
         return render(request, "encyclopedia/entry.html", {
             "title": "Error",
             "entry": "Error 404: Requested page not found."
         })
     return render(request, "encyclopedia/entry.html", {
-        "title": title.capitalize(),
+        "title": title,
         "entry": entry
     })
 
@@ -51,36 +53,58 @@ class NewEntry(forms.Form):
 def newpage(request):
 
     if request.method =="POST":
-        
-        message = ""
 
         form = NewEntry(request.POST)
 
         if form.is_valid():
-
             title = form.cleaned_data["title"]
             content = form.cleaned_data["content"]
             filename = f"entries/{title}.md"
 
             if default_storage.exists(filename):
-                message = "Error: An entry by this title already exists."
                 return render(request, "encyclopedia/newpage.html", {
                     "form": form,
-                    "message": message
+                    "message": "Error: Entry not saved, an entry by this title already exists."
                 })
-
             util.save_entry(title, content)
             entry = util.get_entry(title)
-            return render(request, "encyclopedia/entry.html", {
-                "title": title,
-                "entry": entry
-            })
+            return redirect('entry', title=title)
 
         return render(request, "encyclopedia/newpage.html", {
-            "form": form
+            "form": form,
+            "message": "Form not valid."
         })
-        
     return render(request, "encyclopedia/newpage.html", {
         "form": NewEntry()
     })
-        
+
+class Edit(forms.Form):
+    edit_field = forms.CharField(label="",widget=forms.Textarea)
+
+def edit(request, title):
+    entry = util.get_entry(title)
+    form = Edit(initial={'edit_field': entry})
+
+    if request.method == "POST":
+        form = Edit(request.POST)
+
+        if form.is_valid():
+            new_entry = form.cleaned_data["edit_field"]
+            util.save_entry(title, new_entry)
+            return redirect('entry', title=title)
+
+        return render(request, "encyclopedia/edit.html", {
+            "title":title,
+            "form":form
+        })
+    return render(request, "encyclopedia/edit.html", {
+        "title": title,
+        "form": form
+    })
+
+def random_entry(request):
+    entries = util.list_entries()
+    
+    title = random.choice(entries)
+    return redirect('entry', title=title)
+
